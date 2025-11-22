@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mycotoxin Protocol Generator - Choose Your Approach</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #3a6186 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .intro-section {
+            padding: 50px 40px;
+            background: #f8f9fa;
+            border-bottom: 3px solid #e0e0e0;
+        }
+
+        .intro-section h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .intro-content {
+            max-width: 900px;
+            margin: 0 auto;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+
+        .intro-content ul {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+
+        .intro-content li {
+            margin: 10px 0;
+        }
+
+        .options-container {
+            padding: 60px 40px;
+            background: white;
+        }
+
+        .options-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .options-header h2 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 15px;
+        }
+
+        .options-header p {
+            color: #6c757d;
+            font-size: 1.2em;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 40px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .protocol-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 3px solid #e0e0e0;
+            position: relative;
+        }
+
+        .protocol-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .physica-card {
+            border-top: 5px solid #667eea;
+        }
+
+        .physica-card:hover {
+            border-top-color: #764ba2;
+        }
+
+        .desbio-card {
+            border-top: 5px solid #3a6186;
+        }
+
+        .desbio-card:hover {
+            border-top-color: #89253e;
+        }
+
+        .card-icon {
+            font-size: 4em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 2em;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .card-subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .card-description {
+            margin-bottom: 25px;
+        }
+
+        .card-description h3 {
+            color: #34495e;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .card-description ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-description li {
+            margin: 10px 0;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .card-description strong {
+            color: #2c3e50;
+        }
+
+        .features-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .features-list h4 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        .features-list ul {
+            margin-left: 20px;
+        }
+
+        .features-list li {
+            margin: 8px 0;
+            font-size: 0.95em;
+        }
+
+        .card-button {
+            display: block;
+            width: 100%;
+            padding: 18px 30px;
+            font-size: 1.2em;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .physica-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .physica-button:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .desbio-button {
+            background: linear-gradient(135deg, #3a6186 0%, #89253e 100%);
+        }
+
+        .desbio-button:hover {
+            background: linear-gradient(135deg, #89253e 0%, #3a6186 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(58, 97, 134, 0.4);
+        }
+
+        .best-for {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .best-for h4 {
+            color: #0d47a1;
+            margin-bottom: 10px;
+        }
+
+        .best-for ul {
+            margin-left: 20px;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+
+        .comparison-note {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 40px auto;
+            max-width: 900px;
+        }
+
+        .comparison-note h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .comparison-note p {
+            color: #856404;
+            line-height: 1.8;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 1000px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+                max-width: 600px;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .header p {
+                font-size: 1.1em;
+            }
+
+            .protocol-card {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 40px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .options-container {
+                padding: 40px 20px;
+            }
+
+            .intro-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌿 Mycotoxin Protocol Generator</h1>
+            <p>Professional Clinical Decision Support Tools for Evidence-Based Mycotoxin Detoxification</p>
+        </div>
+
+        <!-- Introduction Section -->
+        <div class="intro-section">
+            <h2>About Mycotoxin Protocols</h2>
+            <div class="intro-content">
+                <p>Mycotoxins are toxic compounds produced by mold and fungi that can accumulate in the body from environmental exposure (water-damaged buildings) or contaminated food sources. These toxins can cause a wide range of symptoms including:</p>
+                <ul>
+                    <li><strong>Neurological:</strong> Brain fog, memory issues, headaches, mood disorders</li>
+                    <li><strong>Respiratory:</strong> Chronic cough, asthma-like symptoms, sinusitis</li>
+                    <li><strong>Digestive:</strong> GI distress, food sensitivities, inflammation</li>
+                    <li><strong>Systemic:</strong> Fatigue, immune dysfunction, chronic inflammation</li>
+                </ul>
+                <p style="margin-top: 20px;">Effective mycotoxin treatment requires comprehensive detoxification protocols that address drainage, binding, antimicrobial support, and restoration. These protocol generators provide evidence-based, phase-specific treatment plans customized to your lab findings and patient demographics.</p>
+            </div>
+        </div>
+
+        <!-- Options Section -->
+        <div class="options-container">
+            <div class="options-header">
+                <h2>Choose Your Clinical Approach</h2>
+                <p>Select the protocol system that best matches your therapeutic philosophy and product preferences</p>
+            </div>
+
+            <div class="cards-grid">
+                <!-- Physica Energetics Card -->
+                <div class="protocol-card physica-card">
+                    <div class="card-icon">🌿</div>
+                    <h3 class="card-title">Physica Energetics</h3>
+                    <p class="card-subtitle">BioPhotonic Spagyric Medicine</p>
+                    
+                    <div class="card-description">
+                        <h3>Clinical Philosophy:</h3>
+                        <p>Physica Energetics uses BioPhotonic Spagyric processing with Dr. Robert Cass's proprietary signaling matrix base (Himalayan Shilajit, humic/fulvic acids, 72 trace minerals). This system emphasizes <strong>causal chain treatment</strong> and depth-specific drainage.</p>
+
+                        <div class="features-list">
+                            <h4>🔬 Core Protocol Features:</h4>
+                            <ul>
+                                <li><strong>Lymph Level Selection:</strong> Choose depth-based drainage (Lymph 1-Acute, Lymph 2-Matrix, Lymph 3-Chronic)</li>
+                                <li><strong>Spagyric Remedies:</strong> Energetically-enhanced botanical preparations</li>
+                                <li><strong>Matrix-Based Approach:</strong> Extracellular matrix (ECM) drainage focus</li>
+                                <li><strong>Methyl-B12 Liposome:</strong> Essential methylation support with all protocols</li>
+                                <li><strong>Multi-Target Binding:</strong> Holo-Plexus with zeolite, bentonite, charcoal</li>
+                            </ul>
+                        </div>
+
+                        <div class="features-list">
+                            <h4>📋 Key Products Included:</h4>
+                            <ul>
+                                <li>Lymph 1, 2, or 3 (depth-specific drainage)</li>
+                                <li>Myco-Tox Detoxifier Homaccord</li>
+                                <li>Holo-Plexus (comprehensive binder)</li>
+                                <li>Glutathione & NAC Forte</li>
+                                <li>Lapacho, Wild Oregano, Berberine</li>
+                                <li>Flora Syntropy, GALT Fortifier</li>
+                            </ul>
+                        </div>
+
+                        <div class="best-for">
+                            <h4>✅ Best For Practitioners Who:</h4>
+                            <ul>
+                                <li>Use BioEnergetic Medicine and spagyric preparations</li>
+                                <li>Want depth-based drainage selection (acute vs. chronic)</li>
+                                <li>Emphasize causal chain and energetic approaches</li>
+                                <li>Prefer botanical antimicrobials and natural remedies</li>
+                                <li>Work with complex chronic illness patients</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <a href="https://aseaydc.github.io/physica-mycotoxin-protocol/" class="card-button physica-button">
+                        Launch Physica Protocol Generator →
+                    </a>
+                </div>
+
+                <!-- DesBio Card -->
+                <div class="protocol-card desbio-card">
+                    <div class="card-icon">🧬</div>
+                    <h3 class="card-title">DesBio</h3>
+                    <p class="card-subtitle">Homeopathic Homotoxicology</p>
+                    
+                    <div class="card-description">
+                        <h3>Clinical Philosophy:</h3>
+                        <p>DesBio protocols are based on <strong>homotoxicology</strong> principles developed by Dr. Hans-Heinrich Reckeweg. This system emphasizes whole-body detoxification through cyclical homeopathic drainage before addressing specific pathology.</p>
+
+                        <div class="features-list">
+                            <h4>🔬 Core Protocol Features:</h4>
+                            <ul>
+                                <li><strong>Comprehensive Detox Kit:</strong> 6 homeopathic remedies in weekly rotation</li>
+                                <li><strong>Cyclical Pattern:</strong> Days 1-3 (brain/spine/matrix) → Days 4-7 (liver/kidney/lymph)</li>
+                                <li><strong>Homotoxicology:</strong> Movement through 6 phases of disease</li>
+                                <li><strong>Drainage-First:</strong> Start detox 1 week before mycotoxin remedies</li>
+                                <li><strong>Liposomal Technology:</strong> Enhanced bioavailability supplements</li>
+                            </ul>
+                        </div>
+
+                        <div class="features-list">
+                            <h4>📋 Key Products Included:</h4>
+                            <ul>
+                                <li>CerebroMax, SpinalMax, Matrix Support</li>
+                                <li>Detox I, II, III (rotating weekly)</li>
+                                <li>Myc:Combination (mycotoxin homeopathic)</li>
+                                <li>ToxAffix (comprehensive binder)</li>
+                                <li>Smart Silver, PathoGuard</li>
+                                <li>BioPro 30, Intestinal Restore</li>
+                            </ul>
+                        </div>
+
+                        <div class="best-for">
+                            <h4>✅ Best For Practitioners Who:</h4>
+                            <ul>
+                                <li>Use homeopathic and homotoxicology approaches</li>
+                                <li>Want systematic whole-body detoxification protocols</li>
+                                <li>Prefer weekly rotation schedules for drainage</li>
+                                <li>Use liposomal delivery systems extensively</li>
+                                <li>Follow Reckeweg's 6-phase disease model</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <a href="https://aseaydc.github.io/desbio-mycotoxin-protocol/" class="card-button desbio-button">
+                        Launch DesBio Protocol Generator →
+                    </a>
+                </div>
+            </div>
+
+            <!-- Comparison Note -->
+            <div class="comparison-note">
+                <h3>💡 Which Protocol Should You Choose?</h3>
+                <p><strong>Both protocols are highly effective</strong> and follow evidence-based principles of drainage-first detoxification. Your choice should depend on:</p>
+                <ul style="margin: 15px 0 15px 30px;">
+                    <li><strong>Product Line Preference:</strong> Which company's products do you currently stock or prefer?</li>
+                    <li><strong>Therapeutic Philosophy:</strong> Do you lean toward spagyric/energetic medicine (Physica) or classical homeopathy/homotoxicology (DesBio)?</li>
+                    <li><strong>Patient Population:</strong> Physica's depth-based lymph selection may be beneficial for complex chronic cases; DesBio's systematic rotation works well for most patients</li>
+                    <li><strong>Protocol Complexity:</strong> Physica requires selecting appropriate lymph level; DesBio follows standardized weekly rotation</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>You can also use both!</strong> Some practitioners use Physica for complex chronic cases and DesBio for more straightforward detoxification protocols.</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Professional Use Only</strong></p>
+            <p>These protocols are designed for licensed healthcare practitioners and are for educational purposes only.</p>
+            <p style="margin-top: 20px; font-size: 0.9em;">Mycotoxin Protocol Generators | Evidence-Based Clinical Decision Support</p>
+        </div>
+    </div>
+</body>
+</html>
