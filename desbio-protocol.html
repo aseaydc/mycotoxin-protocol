@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesBio Mycotoxin Protocol Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #3a6186 0%, #89253e 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .patient-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3a6186;
+        }
+
+        .patient-info h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3a6186;
+        }
+
+        .mycotoxin-selection {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .mycotoxin-selection h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .mycotoxin-category {
+            margin-bottom: 25px;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, #3a6186 0%, #89253e 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+        }
+
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .mycotoxin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            padding: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .mycotoxin-grid.collapsed {
+            display: none;
+        }
+
+        .mycotoxin-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .mycotoxin-item:hover {
+            background: #e9ecef;
+            border-color: #3a6186;
+        }
+
+        .mycotoxin-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .mycotoxin-item label {
+            display: inline;
+            cursor: pointer;
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+
+        .level-select {
+            margin-top: 8px;
+        }
+
+        .level-select select {
+            padding: 6px;
+            font-size: 13px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #3a6186 0%, #89253e 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(58, 97, 134, 0.4);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(58, 97, 134, 0.6);
+        }
+
+        .protocol-output {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border: 2px solid #e0e0e0;
+            display: none;
+        }
+
+        .protocol-output.show {
+            display: block;
+        }
+
+        .protocol-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3a6186;
+        }
+
+        .protocol-header h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .patient-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .patient-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: #212529;
+        }
+
+        .phase-section {
+            background: #fff;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #3a6186;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .phase-section h3 {
+            color: #3a6186;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .phase-number {
+            background: #3a6186;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .phase-duration {
+            background: #e7f3ff;
+            color: #0066cc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .product-list {
+            margin-top: 20px;
+        }
+
+        .product-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #89253e;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .product-dose {
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .product-notes {
+            color: #6c757d;
+            font-size: 0.95em;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .warning-icon {
+            margin-right: 10px;
+            font-size: 1.5em;
+        }
+
+        .critical-box {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .critical-box h4 {
+            color: #721c24;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .info-box h4 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        .mycotoxin-details {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .mycotoxin-details h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .mycotoxin-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .mycotoxin-tag {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border-left: 3px solid #89253e;
+        }
+
+        .level-high {
+            border-left-color: #dc3545;
+        }
+
+        .level-moderate {
+            border-left-color: #ffc107;
+        }
+
+        .level-low {
+            border-left-color: #28a745;
+        }
+
+        .print-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+
+        .print-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+            .patient-info, .mycotoxin-selection, .generate-btn, .action-buttons {
+                display: none !important;
+            }
+            .protocol-output {
+                display: block !important;
+                border: none;
+                box-shadow: none;
+            }
+            .phase-section {
+                page-break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .mycotoxin-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 DesBio Mycotoxin Protocol Generator</h1>
+        <p class="subtitle">Homeopathic Detoxification • Evidence-Based Homotoxicology</p>
+
+        <!-- Patient Information Section -->
+        <div class="patient-info">
+            <h2>Patient Information</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="patientName">Patient Name:</label>
+                    <input type="text" id="patientName" placeholder="Enter patient name">
+                </div>
+                <div class="form-group">
+                    <label for="patientDOB">Date of Birth:</label>
+                    <input type="date" id="patientDOB">
+                </div>
+                <div class="form-group">
+                    <label for="testDate">Test Date:</label>
+                    <input type="date" id="testDate">
+                </div>
+                <div class="form-group">
+                    <label for="protocolDate">Protocol Date:</label>
+                    <input type="date" id="protocolDate">
+                </div>
+                <div class="form-group">
+                    <label for="practitionerName">Practitioner Name:</label>
+                    <input type="text" id="practitionerName" placeholder="Enter practitioner name">
+                </div>
+                <div class="form-group">
+                    <label for="ageGroup">Age Group:</label>
+                    <select id="ageGroup">
+                        <option value="adult">Adult (18+)</option>
+                        <option value="adolescent">Adolescent (13-17 years)</option>
+                        <option value="child">Child (4-12 years)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mycotoxin Selection Section -->
+        <div class="mycotoxin-selection">
+            <h2>Select Elevated Mycotoxins</h2>
+            <p style="margin-bottom: 20px; color: #6c757d;">Select all mycotoxins that are elevated and indicate their level. The protocol will be customized based on your selections.</p>
+
+            <!-- Aflatoxins -->
+            <div class="mycotoxin-category">
+                <div class="category-header" onclick="toggleCategory('aflatoxins')">
+                    <span>Aflatoxins (5 markers)</span>
+                    <span class="toggle-icon" id="aflatoxins-toggle">▼</span>
+                </div>
+                <div class="mycotoxin-grid" id="aflatoxins-grid">
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="afb1" value="Aflatoxin B1">
+                        <label for="afb1">Aflatoxin B1 (AFB1)</label>
+                        <div class="level-select">
+                            <select id="afb1-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="afb2" value="Aflatoxin B2">
+                        <label for="afb2">Aflatoxin B2 (AFB2)</label>
+                        <div class="level-select">
+                            <select id="afb2-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="afg1" value="Aflatoxin G1">
+                        <label for="afg1">Aflatoxin G1 (AFG1)</label>
+                        <div class="level-select">
+                            <select id="afg1-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="afg2" value="Aflatoxin G2">
+                        <label for="afg2">Aflatoxin G2 (AFG2)</label>
+                        <div class="level-select">
+                            <select id="afg2-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="afm1" value="Aflatoxin M1">
+                        <label for="afm1">Aflatoxin M1 (AFM1)</label>
+                        <div class="level-select">
+                            <select id="afm1-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Mycotoxins -->
+            <div class="mycotoxin-category">
+                <div class="category-header" onclick="toggleCategory('other')">
+                    <span>Other Mycotoxins (13 markers)</span>
+                    <span class="toggle-icon" id="other-toggle">▼</span>
+                </div>
+                <div class="mycotoxin-grid" id="other-grid">
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="ota" value="Ochratoxin A">
+                        <label for="ota">Ochratoxin A (OTA)</label>
+                        <div class="level-select">
+                            <select id="ota-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="cha" value="Chaetoglobosin A">
+                        <label for="cha">Chaetoglobosin A (CHA)</label>
+                        <div class="level-select">
+                            <select id="cha-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="ctn" value="Citrinin">
+                        <label for="ctn">Citrinin (CTN)</label>
+                        <div class="level-select">
+                            <select id="ctn-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="dhc" value="Dihydrocitrinone">
+                        <label for="dhc">Dihydrocitrinone</label>
+                        <div class="level-select">
+                            <select id="dhc-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="ennb1" value="Enniatin B1">
+                        <label for="ennb1">Enniatin B1 (ENN B1)</label>
+                        <div class="level-select">
+                            <select id="ennb1-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="fb1" value="Fumonisin B1">
+                        <label for="fb1">Fumonisin B1 (FB1)</label>
+                        <div class="level-select">
+                            <select id="fb1-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="fb2" value="Fumonisin B2">
+                        <label for="fb2">Fumonisin B2 (FB2)</label>
+                        <div class="level-select">
+                            <select id="fb2-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="fb3" value="Fumonisin B3">
+                        <label for="fb3">Fumonisin B3 (FB3)</label>
+                        <div class="level-select">
+                            <select id="fb3-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="gliotoxin" value="Gliotoxin">
+                        <label for="gliotoxin">Gliotoxin</label>
+                        <div class="level-select">
+                            <select id="gliotoxin-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="mpa" value="Mycophenolic Acid">
+                        <label for="mpa">Mycophenolic Acid (MPA)</label>
+                        <div class="level-select">
+                            <select id="mpa-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="patulin" value="Patulin">
+                        <label for="patulin">Patulin</label>
+                        <div class="level-select">
+                            <select id="patulin-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="stc" value="Sterigmatocystin">
+                        <label for="stc">Sterigmatocystin (STC)</label>
+                        <div class="level-select">
+                            <select id="stc-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="zen" value="Zearalenone">
+                        <label for="zen">Zearalenone (ZEN)</label>
+                        <div class="level-select">
+                            <select id="zen-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trichothecenes -->
+            <div class="mycotoxin-category">
+                <div class="category-header" onclick="toggleCategory('trichothecenes')">
+                    <span>Trichothecenes (4 markers)</span>
+                    <span class="toggle-icon" id="trichothecenes-toggle">▼</span>
+                </div>
+                <div class="mycotoxin-grid" id="trichothecenes-grid">
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="don" value="Deoxynivalenol">
+                        <label for="don">Deoxynivalenol (DON)</label>
+                        <div class="level-select">
+                            <select id="don-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="roridin" value="Roridin A">
+                        <label for="roridin">Roridin A</label>
+                        <div class="level-select">
+                            <select id="roridin-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="verrucarin" value="Verrucarin J">
+                        <label for="verrucarin">Verrucarin J</label>
+                        <div class="level-select">
+                            <select id="verrucarin-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mycotoxin-item">
+                        <input type="checkbox" id="t2" value="T-2 Toxin">
+                        <label for="t2">T-2 Toxin</label>
+                        <div class="level-select">
+                            <select id="t2-level">
+                                <option value="low">Low (Green)</option>
+                                <option value="moderate">Moderate (Yellow)</option>
+                                <option value="high">High (Red)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="generate-btn" onclick="generateProtocol()">Generate DesBio Protocol</button>
+
+        <!-- Protocol Output Section -->
+        <div class="protocol-output" id="protocolOutput">
+            <div class="protocol-header">
+                <h2>DesBio Mycotoxin Detoxification Protocol</h2>
+                <p style="color: #6c757d;">Homeopathic Detoxification • Homotoxicology Clinical Protocol</p>
+            </div>
+
+            <div class="patient-details" id="patientDetails">
+                <!-- Patient details will be inserted here -->
+            </div>
+
+            <div class="mycotoxin-details" id="selectedMycotoxins">
+                <!-- Selected mycotoxins will be listed here -->
+            </div>
+
+            <div class="info-box" style="margin-bottom: 30px;" id="protocolGlance">
+                <!-- Protocol at a glance will be inserted here dynamically -->
+            </div>
+
+            <div class="critical-box">
+                <h4><span class="warning-icon">⚠️</span> CRITICAL: Drainage-First Homotoxicology Approach</h4>
+                <p><strong>DesBio's protocol emphasizes comprehensive detoxification BEFORE addressing mycotoxins.</strong> This follows homotoxicological principles:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Comprehensive Homeopathic Detox Kit</strong> - 6 remedies targeting different body systems (brain, spine, extracellular matrix, GI/liver, kidneys/bladder, lymph/immune)</li>
+                    <li><strong>Weekly Rotation:</strong> Days 1-3 (CerebroMax, SpinalMax, Matrix Support) → Days 4-7 (Detox I, Detox II, Detox III)</li>
+                    <li><strong>Start detox 1 week BEFORE</strong> beginning mycotoxin-specific remedies</li>
+                    <li><strong>Continue for minimum 60 days</strong> while simultaneously implementing mycotoxin protocol</li>
+                </ul>
+                <p style="margin-top: 10px;">This whole-body approach prevents toxin recirculation and ensures complete elimination.</p>
+            </div>
+
+            <!-- Phase 1 -->
+            <div class="phase-section">
+                <h3>
+                    <span class="phase-number">1</span>
+                    Phase 1: Comprehensive Detox Foundation
+                    <span class="phase-duration">Days 1-60 (Start 1 week early)</span>
+                </h3>
+                <p style="margin-bottom: 20px; color: #495057;">Begin Comprehensive Homeopathic Detox Kit at least 1 week before starting mycotoxin-specific remedies. Continue this foundational detox throughout all phases.</p>
+                
+                <div class="warning-box">
+                    <h4><span class="warning-icon">📋</span> Weekly Rotation Schedule:</h4>
+                    <p style="margin-bottom: 10px;"><strong>Days 1-3 (e.g., Friday-Sunday):</strong> CerebroMax, SpinalMax, Matrix Support - 10 drops of each, 3x daily</p>
+                    <p><strong>Days 4-7 (e.g., Monday-Thursday):</strong> Detox I, Detox II, Detox III - 10 drops of each, 3x daily</p>
+                    <p style="margin-top: 10px; font-style: italic;">Repeat this 7-day cycle continuously for minimum 60 days</p>
+                </div>
+
+                <div class="product-list" id="phase1Products">
+                    <!-- Products will be inserted here -->
+                </div>
+
+                <div class="info-box">
+                    <h4>Phase 1 Clinical Notes:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Drops may be combined in water or taken under the tongue</li>
+                        <li>CerebroMax targets brain detoxification pathways</li>
+                        <li>SpinalMax addresses spinal cord and peripheral nerve detox</li>
+                        <li>Matrix Support clears extracellular matrix (critical for mycotoxin drainage)</li>
+                        <li>Detox I focuses on GI tract and liver detoxification</li>
+                        <li>Detox II supports kidney and bladder elimination</li>
+                        <li>Detox III enhances lymphatic and immune system drainage</li>
+                        <li>This cyclical pattern ensures whole-body detox without overwhelming any single system</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Phase 2 -->
+            <div class="phase-section">
+                <h3>
+                    <span class="phase-number">2</span>
+                    Phase 2: Mycotoxin-Specific Detoxification
+                    <span class="phase-duration">Days 7-90</span>
+                </h3>
+                <p style="margin-bottom: 20px; color: #495057;">After establishing drainage foundation, add mycotoxin-specific homeopathic remedies and binding agents.</p>
+                
+                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+                    <h4 style="color: #2e7d32; margin-bottom: 10px;">✓ CONTINUE Phase 1:</h4>
+                    <p style="margin: 0; color: #1b5e20; font-weight: 500;">Keep rotating through the Comprehensive Homeopathic Detox Kit weekly cycle throughout Phase 2</p>
+                </div>
+
+                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+                    <h4 style="color: #e65100; margin-bottom: 10px;">+ ADD these NEW products in Phase 2:</h4>
+                </div>
+                
+                <div class="product-list" id="phase2Products">
+                    <!-- Products will be inserted here -->
+                </div>
+
+                <div class="warning-box">
+                    <h4><span class="warning-icon">⚠️</span> ToxAffix Timing - CRITICAL:</h4>
+                    <p><strong>Take ToxAffix at least 45 minutes away from ALL medications and supplements.</strong> This binder contains activated charcoal, bentonite clay, and other binding agents that can reduce absorption of other substances.</p>
+                    <p style="margin-top: 10px;"><strong>Suggested timing:</strong> Take ToxAffix first thing in morning or at bedtime, away from all other products and food.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Herxheimer Reaction Management:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>If significant die-off symptoms occur, increase ToxAffix to 3-4 capsules daily</li>
+                        <li>May increase Liposomal Glutathione to 2 servings daily</li>
+                        <li>Add additional Liposomal Vitamin C (up to 3 servings daily)</li>
+                        <li>Ensure adequate hydration (half body weight in ounces of water daily)</li>
+                        <li>May reduce homeopathic remedy frequency to 2x daily temporarily</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="phase-section">
+                <h3>
+                    <span class="phase-number">3</span>
+                    Phase 3: Gut Restoration & Immune Support
+                    <span class="phase-duration">Days 90-120</span>
+                </h3>
+                <p style="margin-bottom: 20px; color: #495057;">Restore healthy gut microbiome, repair intestinal barrier, and optimize immune function after mycotoxin elimination.</p>
+                
+                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+                    <h4 style="color: #2e7d32; margin-bottom: 10px;">✓ CONTINUE from Phase 2:</h4>
+                    <p style="margin: 0; color: #1b5e20; font-weight: 500;">Continue Myc:Combination (may reduce to 2x daily), Liposomal Glutathione, Liposomal Bio-Quercetin</p>
+                </div>
+
+                <div style="background: #fff9c4; border-left: 4px solid #fbc02d; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+                    <h4 style="color: #f57f17; margin-bottom: 10px;">↓ REDUCE or STOP:</h4>
+                    <p style="margin: 0; color: #f57f17; font-weight: 500;">
+                        • Comprehensive Homeopathic Detox Kit: May reduce to once daily of each remedy (instead of 3x daily)<br>
+                        • ToxAffix: Reduce to 1 capsule daily or discontinue if symptoms resolved<br>
+                        • The Daily Bind: May discontinue if symptoms resolved
+                    </p>
+                </div>
+
+                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+                    <h4 style="color: #e65100; margin-bottom: 10px;">+ ADD these NEW products in Phase 3:</h4>
+                </div>
+                
+                <div class="product-list" id="phase3Products">
+                    <!-- Products will be inserted here -->
+                </div>
+
+                <div class="info-box">
+                    <h4>Phase 3 Clinical Notes:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Focus shifts from detoxification to restoration and repair</li>
+                        <li>BioPro 30 provides multi-strain probiotic support for microbiome balance</li>
+                        <li>Intestinal Restore supports gut barrier integrity and healing</li>
+                        <li>Leaky Gut Formula addresses intestinal permeability</li>
+                        <li>Continue antioxidant support for cellular protection</li>
+                        <li>Maintain reduced detox support as maintenance</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Phase 4 -->
+            <div class="phase-section">
+                <h3>
+                    <span class="phase-number">4</span>
+                    Phase 4: Maintenance & Prevention
+                    <span class="phase-duration">Ongoing</span>
+                </h3>
+                <p style="margin-bottom: 20px; color: #495057;">Long-term support to prevent recurrence and maintain optimal health.</p>
+                
+                <div style="background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+                    <h4 style="color: #c62828; margin-bottom: 10px;">⊗ STOP Most Phase 2 & 3 Products:</h4>
+                    <p style="margin: 0; color: #b71c1c; font-weight: 500;">
+                        You can now stop: Comprehensive Homeopathic Detox Kit (unless symptoms return), Myc:Combination (unless ongoing exposure), ToxAffix, The Daily Bind, Smart Silver
+                    </p>
+                </div>
+
+                <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+                    <h4 style="color: #0d47a1; margin-bottom: 10px;">→ MAINTENANCE PROTOCOL - Take Only These Products:</h4>
+                </div>
+                
+                <div class="product-list" id="phase4Products">
+                    <!-- Products will be inserted here -->
+                </div>
+
+                <div class="info-box">
+                    <h4>Long-Term Maintenance Guidelines:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Retest mycotoxins at 3-6 months</strong> to confirm clearance</li>
+                        <li><strong>Monthly "pulse" protocols:</strong> If ongoing environmental exposure, do 1 week per month of ToxAffix + Myc:Combination</li>
+                        <li><strong>Maintain gut health:</strong> Continue BioPro 30 indefinitely</li>
+                        <li><strong>Address environmental mold sources</strong> to prevent re-exposure (CRITICAL)</li>
+                        <li><strong>Consider OmniEssentials multivitamin</strong> for ongoing nutritional support</li>
+                        <li><strong>Return to full protocol</strong> if symptoms return or retest shows re-exposure</li>
+                        <li><strong>Annual detox:</strong> Consider 2-week OmniCleanse Detox program annually</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Environmental Recommendations -->
+            <div class="phase-section">
+                <h3>Environmental & Lifestyle Recommendations</h3>
+                <div class="warning-box">
+                    <h4><span class="warning-icon">⚠️</span> Critical: Mold Remediation Required</h4>
+                    <p>Treatment will not be successful without addressing environmental sources of mold. Complete the following steps:</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Professional mold inspection and remediation</strong> of home/workplace</li>
+                        <li><strong>HVAC system inspection</strong> and cleaning (mold spores travel through ducts)</li>
+                        <li><strong>HEPA air filtration</strong> in bedroom and main living areas</li>
+                        <li><strong>Humidity control</strong> - maintain below 50% relative humidity</li>
+                        <li><strong>Remove water-damaged materials</strong> (drywall, carpet, wood)</li>
+                        <li><strong>Thorough cleaning</strong> of all surfaces after remediation</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Dietary Guidelines:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Avoid high-risk foods: peanuts, corn, dried fruits, stored grains</li>
+                        <li>Choose organic produce when possible to reduce pesticide burden</li>
+                        <li>Proper food storage to prevent mold growth</li>
+                        <li>Support liver function with cruciferous vegetables, beets, and leafy greens</li>
+                        <li>Adequate protein intake to support detoxification pathways</li>
+                        <li>Consider anti-inflammatory diet during active detoxification</li>
+                        <li>May consider OptimaLean or OmniMeal for nutritional meal replacement during detox</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Supportive Lifestyle Practices:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Hydration:</strong> Minimum half body weight in ounces of filtered water daily</li>
+                        <li><strong>Sleep:</strong> 7-9 hours nightly for optimal detoxification</li>
+                        <li><strong>Stress Management:</strong> Chronic stress impairs detoxification (consider AnXious or Liposomal Calm)</li>
+                        <li><strong>Lymphatic Support:</strong> Dry brushing, rebounding, or massage</li>
+                        <li><strong>Sauna Therapy:</strong> If tolerated, supports toxin elimination through skin</li>
+                        <li><strong>Exercise:</strong> Gentle to moderate activity supports lymphatic drainage</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Special Considerations -->
+            <div class="phase-section" id="specialConsiderations">
+                <!-- Special considerations will be inserted based on selections -->
+            </div>
+
+            <!-- Monitoring & Follow-up -->
+            <div class="phase-section">
+                <h3>Monitoring & Follow-Up</h3>
+                <div class="info-box">
+                    <h4>Testing Schedule:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Initial retest:</strong> 3-6 months after starting protocol</li>
+                        <li><strong>Maintenance testing:</strong> Every 6-12 months</li>
+                        <li><strong>Acute exposure:</strong> Retest in 2-3 months</li>
+                        <li><strong>Additional testing to consider:</strong> Liver function panel, comprehensive metabolic panel, inflammatory markers (CRP, ESR)</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4><span class="warning-icon">⚠️</span> Red Flags Requiring Immediate Medical Attention:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Severe liver enzyme elevation</li>
+                        <li>Persistent neurological symptoms (confusion, seizures)</li>
+                        <li>Severe allergic reactions to homeopathic remedies or supplements</li>
+                        <li>Significant worsening of symptoms despite treatment</li>
+                        <li>Jaundice or severe abdominal pain</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Expected Improvements:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Decreased mycotoxin levels on follow-up testing</li>
+                        <li>Improved energy and reduced fatigue (typically by 6-8 weeks)</li>
+                        <li>Enhanced cognitive function and mental clarity</li>
+                        <li>Reduced inflammatory markers</li>
+                        <li>Better digestive health and regularity</li>
+                        <li>Improved sleep quality</li>
+                        <li>Reduction in skin issues, headaches, and respiratory symptoms</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Contraindications & Safety -->
+            <div class="phase-section">
+                <h3>Important Safety Information & Contraindications</h3>
+                
+                <div class="critical-box">
+                    <h4><span class="warning-icon">⚠️</span> ToxAffix Critical Timing:</h4>
+                    <p><strong>MUST take at least 45 minutes away from:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>ALL medications (prescription and OTC)</li>
+                        <li>ALL other supplements and nutrients</li>
+                        <li>ALL food and beverages (except water)</li>
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>Reason:</strong> Contains binding agents that can reduce absorption of medications and nutrients.</p>
+                </div>
+
+                <div class="warning-box">
+                    <h4><span class="warning-icon">⚠️</span> General Contraindications:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Pregnancy/Nursing:</strong> Consult healthcare practitioner before use. Some detoxification protocols should be avoided during pregnancy and nursing.</li>
+                        <li><strong>Children under 4 years:</strong> Not recommended without specific guidance from pediatric specialist</li>
+                        <li><strong>Severe liver disease:</strong> Requires medical supervision and protocol modification</li>
+                        <li><strong>Severe kidney disease:</strong> Requires medical supervision and protocol modification</li>
+                        <li><strong>Organ transplant recipients:</strong> Homeopathic immune support may not be appropriate</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4>Potential Initial Reactions:</h4>
+                    <p>Common initial homeopathic detoxification reactions (usually resolve within 3-7 days):</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Mild headache or fatigue</li>
+                        <li>Temporary digestive changes</li>
+                        <li>Mild skin breakouts</li>
+                        <li>Temporary increase in mucus production</li>
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>If reactions are severe:</strong> Reduce all homeopathic remedies to 2x daily (from 3x daily), increase hydration, and contact your practitioner.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Product Interactions:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Smart Silver:</strong> Generally well-tolerated. Use appropriate age-based dosing.</li>
+                        <li><strong>Liposomal products:</strong> May cause mild GI upset if taken on empty stomach. Take with small amount of food if needed.</li>
+                        <li><strong>Homeopathic remedies:</strong> Avoid taking within 15 minutes of mint, coffee, or strong flavors which may antidote effects</li>
+                        <li><strong>PathoGuard:</strong> Contains botanical antimicrobials; monitor if taking anticoagulants</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Practitioner Notes -->
+            <div class="phase-section">
+                <h3>Clinical Pearls & Practitioner Notes</h3>
+                <div class="info-box">
+                    <h4>Homotoxicology Principles:</h4>
+                    <p>DesBio products are formulated based on homotoxicological principles developed by Dr. Hans-Heinrich Reckeweg:</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Disease results from accumulation of homotoxins (substances harmful to humans)</li>
+                        <li>Body progresses through 6 phases of disease (Excretion, Inflammation, Deposition, Impregnation, Degeneration, Dedifferentiation)</li>
+                        <li>Treatment aims to move pathology from deeper to more superficial phases</li>
+                        <li>Homeopathic remedies stimulate the body's self-regulatory mechanisms</li>
+                        <li>Comprehensive drainage is essential before addressing deeper pathology</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Dosing Philosophy:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Standard dosing:</strong> 10 drops three times daily for most homeopathic remedies</li>
+                        <li><strong>Acute dosing:</strong> May increase frequency to every 15-30 minutes for acute symptoms</li>
+                        <li><strong>Maintenance dosing:</strong> Reduce to once or twice daily after symptoms resolve</li>
+                        <li><strong>Sensitive patients:</strong> Start with lower doses (5 drops 2x daily) and increase gradually</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Homeopathic Remedy Administration:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>May take drops directly under tongue OR dilute in small amount of water</li>
+                        <li>Hold drops under tongue for 30-60 seconds before swallowing for best absorption</li>
+                        <li>Avoid eating/drinking for 15 minutes before and after taking remedies</li>
+                        <li>Avoid mint, coffee, camphor which may antidote homeopathic effects</li>
+                        <li>Multiple remedies may be taken together or sequentially</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Treatment Response Indicators:</h4>
+                    <p><strong>Positive response (continue protocol):</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Mild, manageable detox reactions that resolve within a week</li>
+                        <li>Gradual improvement in energy and mental clarity</li>
+                        <li>Better sleep and reduced symptoms</li>
+                        <li>Good tolerance of all products</li>
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>Poor tolerance (modify protocol):</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Severe or prolonged detox reactions</li>
+                        <li>Significant worsening of symptoms</li>
+                        <li>Poor supplement tolerance</li>
+                        <li>Consider: More gradual introduction, lower doses, additional drainage support</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>OmniCleanse 14-Day Detox Option:</h4>
+                    <p>For more intensive detoxification, consider adding the full OmniCleanse Detox Kit:</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>OmniCleanse Powdered Beverage:</strong> 1 serving daily (adults only) - provides nutritional and botanical detox support</li>
+                        <li><strong>OmniCleanse Capsules:</strong> 1-3 capsules daily - concentrated botanical liver support</li>
+                        <li><strong>Combines with</strong> Comprehensive Homeopathic Detox Kit for maximum effect</li>
+                        <li>Particularly useful for high-level mycotoxin exposures or patients with significant toxic burden</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px; border: 1px solid #dee2e6;">
+                <h4 style="color: #495057; margin-bottom: 10px;">Important Disclaimer</h4>
+                <p style="color: #6c757d; font-size: 0.95em; line-height: 1.6;">
+                    This protocol is for educational and informational purposes only and is intended for use by licensed healthcare practitioners. 
+                    It is not meant to diagnose, treat, cure, or prevent any disease. Individual patient circumstances vary, and protocols should 
+                    be customized based on clinical judgment, patient history, concurrent conditions, and individual tolerance. Always consult with 
+                    a qualified healthcare practitioner before starting any supplement protocol, especially for children, pregnant/nursing women, 
+                    or individuals with pre-existing medical conditions. DesBio homeopathic remedies are for temporary relief of symptoms only 
+                    and are designed for use under the supervision of licensed healing arts professionals. The statements regarding these products 
+                    have not been evaluated by the FDA.
+                </p>
+                <p style="color: #6c757d; font-size: 0.95em; line-height: 1.6; margin-top: 10px;">
+                    <strong>Environmental remediation is essential for successful treatment.</strong> Clinical outcomes cannot be guaranteed without 
+                    proper mold remediation and removal of ongoing exposure sources.
+                </p>
+            </div>
+
+            <div class="action-buttons">
+                <button class="print-btn" onclick="printProtocol()">🖨️ Print Protocol</button>
+                <button class="print-btn" onclick="generateProtocol()" style="background: #6c757d;">🔄 Regenerate Protocol</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Print function with validation
+        function printProtocol() {
+            const protocolOutput = document.getElementById('protocolOutput');
+            if (!protocolOutput.classList.contains('show')) {
+                alert('Please generate a protocol first by clicking "Generate DesBio Protocol" button.');
+                return;
+            }
+            window.print();
+        }
+
+        // Toggle category visibility
+        function toggleCategory(categoryId) {
+            const grid = document.getElementById(categoryId + '-grid');
+            const toggle = document.getElementById(categoryId + '-toggle');
+            grid.classList.toggle('collapsed');
+            toggle.classList.toggle('rotated');
+        }
+
+        // Generate protocol
+        function generateProtocol() {
+            // Get patient information
+            const patientName = document.getElementById('patientName').value || 'Patient Name';
+            const patientDOB = document.getElementById('patientDOB').value || 'Not provided';
+            const testDate = document.getElementById('testDate').value || 'Not provided';
+            const protocolDate = document.getElementById('protocolDate').value || new Date().toLocaleDateString();
+            const practitionerName = document.getElementById('practitionerName').value || 'Practitioner Name';
+            const ageGroup = document.getElementById('ageGroup').value;
+
+            // Get selected mycotoxins
+            const selectedMycotoxins = [];
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                alert('Please select at least one elevated mycotoxin.');
+                return;
+            }
+
+            checkboxes.forEach(checkbox => {
+                const level = document.getElementById(checkbox.id + '-level').value;
+                selectedMycotoxins.push({
+                    name: checkbox.value,
+                    level: level
+                });
+            });
+
+            // Generate patient details
+            const patientDetailsHTML = `
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">Patient Information</h3>
+                <div class="patient-details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Patient Name:</div>
+                        <div class="detail-value">${patientName}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Date of Birth:</div>
+                        <div class="detail-value">${patientDOB}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Test Date:</div>
+                        <div class="detail-value">${testDate}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Protocol Date:</div>
+                        <div class="detail-value">${protocolDate}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Practitioner:</div>
+                        <div class="detail-value">${practitionerName}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Age Group:</div>
+                        <div class="detail-value">${ageGroup === 'adult' ? 'Adult (18+)' : ageGroup === 'adolescent' ? 'Adolescent (13-17)' : 'Child (4-12)'}</div>
+                    </div>
+                </div>
+            `;
+
+            // Generate mycotoxin list
+            let mycotoxinListHTML = '<h4>Elevated Mycotoxins Detected:</h4><div class="mycotoxin-list">';
+            selectedMycotoxins.forEach(toxin => {
+                mycotoxinListHTML += `
+                    <div class="mycotoxin-tag level-${toxin.level}">
+                        <strong>${toxin.name}</strong><br>
+                        <span style="font-size: 0.9em;">Level: ${toxin.level.charAt(0).toUpperCase() + toxin.level.slice(1)}</span>
+                    </div>
+                `;
+            });
+            mycotoxinListHTML += '</div>';
+
+            // Determine dosing based on age group
+            let smartSilverDose, mycCombinationDose, toxAffixDose, glutathioneDose, bioQuercetinDose;
+            let dailyBindDose, vitCDose, bioProDose, intestinalRestoreDose, leakyGutDose;
+            let pathoGuardDose, omniEssentialsDose, vitD3K2Dose, coQ10Dose;
+
+            if (ageGroup === 'child') {
+                smartSilverDose = '½ teaspoon 1-2x daily (adjust for age/weight)';
+                mycCombinationDose = '5 drops 3x daily';
+                toxAffixDose = '1 capsule daily';
+                glutathioneDose = '½ serving daily';
+                bioQuercetinDose = '¼ tsp daily';
+                dailyBindDose = '½ serving daily';
+                vitCDose = '½ serving 1-2x daily';
+                bioProDose = '1 capsule daily';
+                intestinalRestoreDose = '½ serving daily';
+                leakyGutDose = '5 drops 3x daily';
+                pathoGuardDose = '1 capsule daily';
+                omniEssentialsDose = '2 capsules daily';
+                vitD3K2Dose = '½ serving daily';
+                coQ10Dose = '½ serving daily';
+            } else if (ageGroup === 'adolescent') {
+                smartSilverDose = '1 teaspoon 2-3x daily';
+                mycCombinationDose = '7-8 drops 3x daily';
+                toxAffixDose = '1-2 capsules daily';
+                glutathioneDose = '1 serving daily';
+                bioQuercetinDose = '½ tsp daily';
+                dailyBindDose = '1 serving daily';
+                vitCDose = '1 serving 1-2x daily';
+                bioProDose = '1 capsule 1-2x daily';
+                intestinalRestoreDose = '1 serving daily';
+                leakyGutDose = '8-10 drops 3x daily';
+                pathoGuardDose = '2 capsules daily';
+                omniEssentialsDose = '3 capsules daily';
+                vitD3K2Dose = '1 serving daily';
+                coQ10Dose = '1 serving daily';
+            } else {
+                smartSilverDose = '1 tablespoon (3 teaspoons) daily';
+                mycCombinationDose = '10 drops 3x daily';
+                toxAffixDose = '2 capsules daily';
+                glutathioneDose = '1 serving daily';
+                bioQuercetinDose = '½ tsp daily';
+                dailyBindDose = '1 serving daily';
+                vitCDose = '1 serving 1-3x daily';
+                bioProDose = '1 capsule 2x daily';
+                intestinalRestoreDose = '1 serving 1-3x daily';
+                leakyGutDose = '10 drops 3x daily';
+                pathoGuardDose = '3 capsules daily';
+                omniEssentialsDose = '4 capsules daily';
+                vitD3K2Dose = '1 serving daily';
+                coQ10Dose = '1 serving daily';
+            }
+
+            // Check for specific mycotoxin types
+            const hasHighLevel = selectedMycotoxins.some(t => t.level === 'high');
+            const hasTrichothecenes = selectedMycotoxins.some(t => 
+                ['Deoxynivalenol', 'Roridin A', 'Verrucarin J', 'T-2 Toxin'].includes(t.name)
+            );
+            const hasGliotoxin = selectedMycotoxins.some(t => t.name === 'Gliotoxin');
+            const hasZEN = selectedMycotoxins.some(t => t.name === 'Zearalenone');
+
+            // Phase 1 Products (Comprehensive Homeopathic Detox Kit)
+            const phase1HTML = `
+                <h4 style="color: #2c3e50; margin-bottom: 15px;">Comprehensive Homeopathic Detox Kit Components:</h4>
+                
+                <div class="product-item">
+                    <div class="product-name">CerebroMax (Brain Detoxification)</div>
+                    <div class="product-dose">Dosing: 10 drops 3x daily on Days 1-3 of weekly cycle</div>
+                    <div class="product-notes">Homeopathic remedy targeting brain and central nervous system detoxification. Supports neurological drainage pathways.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">SpinalMax (Spinal & Peripheral Nerve Detox)</div>
+                    <div class="product-dose">Dosing: 10 drops 3x daily on Days 1-3 of weekly cycle</div>
+                    <div class="product-notes">Homeopathic remedy for spinal cord and peripheral nerve detoxification. Supports nervous system drainage.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Matrix Support (Extracellular Matrix Drainage)</div>
+                    <div class="product-dose">Dosing: 10 drops 3x daily on Days 1-3 of weekly cycle</div>
+                    <div class="product-notes">Critical for mycotoxin detoxification! Clears extracellular matrix (ECM) where toxins accumulate. Essential foundation for all detox protocols.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Detox I (GI Tract & Liver)</div>
+                    <div class="product-dose">Dosing: 10 drops 3x daily on Days 4-7 of weekly cycle</div>
+                    <div class="product-notes">Homeopathic remedy supporting gastrointestinal tract and liver detoxification. Phase I and II liver enzyme support.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Detox II (Kidneys & Bladder)</div>
+                    <div class="product-dose">Dosing: 10 drops 3x daily on Days 4-7 of weekly cycle</div>
+                    <div class="product-notes">Homeopathic remedy for kidney and bladder detoxification. Supports urinary elimination pathways.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Detox III (Lymph & Immune)</div>
+                    <div class="product-dose">Dosing: 10 drops 3x daily on Days 4-7 of weekly cycle</div>
+                    <div class="product-notes">Homeopathic remedy supporting lymphatic drainage and immune system function. Essential for toxin elimination.</div>
+                </div>
+
+                ${hasHighLevel ? `
+                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-top: 20px; margin-bottom: 15px; border-radius: 5px;">
+                    <h4 style="color: #856404; margin-bottom: 10px;">⚠️ High-Level Exposure Detected:</h4>
+                    <p style="margin: 0; color: #856404;">Due to high mycotoxin levels, consider adding the full <strong>OmniCleanse Detox Kit</strong> for more intensive support during first 14 days:</p>
+                    <ul style="margin-left: 20px; margin-top: 10px; color: #856404;">
+                        <li><strong>OmniCleanse Powdered Beverage:</strong> 1 serving daily (adults only)</li>
+                        <li><strong>OmniCleanse Capsules:</strong> 1-3 capsules daily (adults only)</li>
+                    </ul>
+                </div>
+                ` : ''}
+            `;
+
+            // Phase 2 Products
+            const phase2HTML = `
+                <div class="product-item">
+                    <div class="product-name">Myc:Combination (Primary Mycotoxin Homeopathic)</div>
+                    <div class="product-dose">Dosing: ${mycCombinationDose}</div>
+                    <div class="product-notes">Homeopathic combination remedy specifically formulated for mycotoxin detoxification. Contains dilutions targeting multiple mycotoxin species.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">ToxAffix (Multi-Target Binder)</div>
+                    <div class="product-dose">Dosing: ${toxAffixDose}</div>
+                    <div class="product-notes"><strong>CRITICAL TIMING:</strong> Take at least 45 minutes away from all medications, supplements, and food. Contains activated charcoal and bentonite clay for comprehensive mycotoxin binding.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Liposomal Glutathione</div>
+                    <div class="product-dose">Dosing: ${glutathioneDose}</div>
+                    <div class="product-notes">Master antioxidant supporting Phase II liver detoxification. Liposomal delivery ensures superior absorption and cellular uptake.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Liposomal Bio-Quercetin</div>
+                    <div class="product-dose">Dosing: ${bioQuercetinDose}</div>
+                    <div class="product-notes">Powerful antioxidant and mast cell stabilizer. Helps reduce inflammatory response to mycotoxins. Liposomal form for enhanced bioavailability.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">The Daily Bind (Liposomal Binder)</div>
+                    <div class="product-dose">Dosing: ${dailyBindDose}</div>
+                    <div class="product-notes">Liposomal binding formula for daily toxin elimination support. Complements ToxAffix with additional binding capacity.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Smart Silver (Colloidal Silver)</div>
+                    <div class="product-dose">Dosing: ${smartSilverDose}</div>
+                    <div class="product-notes">Broad-spectrum antimicrobial support. Many mycotoxins are produced by fungi/mold that require antimicrobial intervention.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Liposomal Vitamin C</div>
+                    <div class="product-dose">Dosing: ${vitCDose}</div>
+                    <div class="product-notes">Powerful antioxidant supporting immune function and detoxification pathways. Liposomal form provides sustained high-dose vitamin C.</div>
+                </div>
+
+                ${hasGliotoxin ? `
+                <div class="product-item">
+                    <div class="product-name">ContraVirus</div>
+                    <div class="product-dose">Dosing: ${ageGroup === 'child' ? '1 capsule daily' : '2 capsules daily'}</div>
+                    <div class="product-notes">Added for Gliotoxin (Aspergillus). Botanical formula supporting immune defense against viral and fungal challenges.</div>
+                </div>
+                ` : ''}
+
+                ${hasTrichothecenes ? `
+                <div class="product-item">
+                    <div class="product-name">Intestinal Restore (Early Introduction)</div>
+                    <div class="product-dose">Dosing: ${intestinalRestoreDose}</div>
+                    <div class="product-notes">Added early for trichothecene exposure. Supports GI mucosal healing and repair. Contains L-glutamine and gut-healing nutrients.</div>
+                </div>
+                ` : ''}
+            `;
+
+            // Phase 3 Products
+            const phase3HTML = `
+                <div class="product-item">
+                    <div class="product-name">BioPro 30 (Multi-Strain Probiotic)</div>
+                    <div class="product-dose">Dosing: ${bioProDose}</div>
+                    <div class="product-notes">30 billion CFU multi-strain probiotic for comprehensive microbiome restoration. Supports healthy gut flora balance after mycotoxin exposure.</div>
+                </div>
+
+                ${!hasTrichothecenes ? `
+                <div class="product-item">
+                    <div class="product-name">Intestinal Restore</div>
+                    <div class="product-dose">Dosing: ${intestinalRestoreDose}</div>
+                    <div class="product-notes">Comprehensive gut healing formula. Contains L-glutamine, vitamins, minerals, and botanicals for intestinal barrier restoration.</div>
+                </div>
+                ` : ''}
+
+                <div class="product-item">
+                    <div class="product-name">Leaky Gut Formula (Homeopathic)</div>
+                    <div class="product-dose">Dosing: ${leakyGutDose}</div>
+                    <div class="product-notes">Homeopathic remedy for intestinal permeability. Supports tight junction integrity and gut barrier function.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">PathoGuard (Botanical Antimicrobial)</div>
+                    <div class="product-dose">Dosing: ${pathoGuardDose}</div>
+                    <div class="product-notes">Broad-spectrum botanical antimicrobial formula. Addresses residual fungal/bacterial overgrowth following mycotoxin exposure.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Liposomal Resveratrol Curcumin</div>
+                    <div class="product-dose">Dosing: 1 serving daily</div>
+                    <div class="product-notes">Powerful anti-inflammatory combination. Supports cellular repair and modulates inflammatory pathways affected by mycotoxins.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Liposomal CoQ10</div>
+                    <div class="product-dose">Dosing: ${coQ10Dose}</div>
+                    <div class="product-notes">Mitochondrial support for cellular energy restoration. Mycotoxins often impair mitochondrial function requiring CoQ10 supplementation.</div>
+                </div>
+
+                ${hasZEN ? `
+                <div class="product-item">
+                    <div class="product-name">Hormone Combination (Homeopathic)</div>
+                    <div class="product-dose">Dosing: ${ageGroup === 'child' ? 'Not recommended' : '10 drops 3x daily'}</div>
+                    <div class="product-notes">Added for Zearalenone exposure. Homeopathic hormone balancing formula. Zearalenone has estrogenic effects requiring hormonal support.</div>
+                </div>
+                ` : ''}
+            `;
+
+            // Phase 4 Products
+            const phase4HTML = `
+                <div class="product-item">
+                    <div class="product-name">BioPro 30 (Ongoing Probiotic Support)</div>
+                    <div class="product-dose">Dosing: ${ageGroup === 'child' ? '1 capsule daily' : '1 capsule daily'}</div>
+                    <div class="product-notes">Continue long-term for microbiome maintenance and gut health support.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Liposomal Glutathione (Maintenance)</div>
+                    <div class="product-dose">Dosing: ${ageGroup === 'child' ? '½ serving 3-4x weekly' : '1 serving 3-4x weekly'}</div>
+                    <div class="product-notes">Ongoing antioxidant support at reduced frequency. Maintains detoxification capacity.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">OmniEssentials (Multivitamin)</div>
+                    <div class="product-dose">Dosing: ${omniEssentialsDose}</div>
+                    <div class="product-notes">Comprehensive multivitamin/mineral formula for foundational nutrition and long-term health maintenance.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Liposomal D3/K2</div>
+                    <div class="product-dose">Dosing: ${vitD3K2Dose}</div>
+                    <div class="product-notes">Essential vitamin D with K2 for immune support, bone health, and overall wellness maintenance.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">Myc:Combination (Pulse Protocol - If Needed)</div>
+                    <div class="product-dose">Dosing: ${mycCombinationDose} for 1 week per month</div>
+                    <div class="product-notes">Monthly "pulse" protocol if ongoing environmental exposure suspected. Discontinue if no longer needed.</div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-name">ToxAffix (Pulse Protocol - If Needed)</div>
+                    <div class="product-dose">Dosing: ${toxAffixDose} for 1 week per month</div>
+                    <div class="product-notes">Monthly binding support if ongoing toxin exposure. Take 45 minutes away from other supplements/medications.</div>
+                </div>
+            `;
+
+            // Special considerations based on selections
+            let specialConsiderationsHTML = '<h3>Special Considerations for This Protocol</h3>';
+            
+            if (hasTrichothecenes) {
+                specialConsiderationsHTML += `
+                    <div class="info-box">
+                        <h4>Trichothecene-Specific Considerations:</h4>
+                        <p>Trichothecenes (DON, Roridin A, Verrucarin J, T-2 Toxin) cause severe GI irritation and immune suppression. Special protocol adjustments:</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>Enhanced GI protection:</strong> Intestinal Restore added in Phase 2 (earlier than standard protocol)</li>
+                            <li><strong>Slower progression:</strong> May need extended Phase 1 (8-10 weeks) before adding mycotoxin-specific remedies</li>
+                            <li><strong>Additional immune support:</strong> Consider adding ProDefense or Immune Support</li>
+                            <li><strong>Careful monitoring:</strong> Watch for significant GI symptoms requiring dose adjustments</li>
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (hasGliotoxin) {
+                specialConsiderationsHTML += `
+                    <div class="info-box">
+                        <h4>Gliotoxin-Specific Considerations:</h4>
+                        <p>Gliotoxin from Aspergillus species requires enhanced antifungal support:</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>ContraVirus added:</strong> Provides additional immune and antifungal support for Aspergillus</li>
+                            <li><strong>Respiratory symptoms:</strong> May need additional respiratory support with Breathe or Lung Drainage</li>
+                            <li><strong>Environmental focus:</strong> Critical to identify and remediate Aspergillus sources in environment</li>
+                            <li><strong>Extended treatment:</strong> May require 4-6 months total treatment time</li>
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (hasZEN) {
+                specialConsiderationsHTML += `
+                    <div class="warning-box">
+                        <h4><span class="warning-icon">⚠️</span> Zearalenone Hormonal Considerations:</h4>
+                        <p>Zearalenone exhibits estrogenic effects requiring hormonal support:</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>Hormone Combination added:</strong> Homeopathic hormone balancing in Phase 3</li>
+                            <li><strong>Hormonal testing:</strong> Consider baseline and follow-up hormone panels</li>
+                            <li><strong>Contraceptive considerations:</strong> May affect oral contraceptive efficacy - discuss with prescriber</li>
+                            <li><strong>Menstrual irregularities:</strong> Common with ZEN exposure; typically improve with protocol</li>
+                            <li><strong>Additional options:</strong> May need Menopause Relief (women) or Viril (men) for severe hormonal symptoms</li>
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (hasHighLevel) {
+                specialConsiderationsHTML += `
+                    <div class="critical-box">
+                        <h4><span class="warning-icon">⚠️</span> High-Level Mycotoxin Exposure Protocol Modifications:</h4>
+                        <p><strong>This patient has high-level (red) mycotoxin exposure requiring intensive protocol:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>Extended Phase 1:</strong> Complete full 10-14 weeks of Comprehensive Homeopathic Detox Kit before Phase 2</li>
+                            <li><strong>OmniCleanse Addition:</strong> Strongly recommend adding full OmniCleanse Detox Kit for first 14 days</li>
+                            <li><strong>Slower introduction:</strong> Start mycotoxin remedies at 50% dose, increase gradually</li>
+                            <li><strong>Enhanced binding:</strong> May increase ToxAffix to 3-4 capsules daily if tolerated</li>
+                            <li><strong>Careful monitoring:</strong> Weekly check-ins recommended for first 6-8 weeks</li>
+                            <li><strong>Liver function testing:</strong> Baseline and follow-up liver panel essential</li>
+                            <li><strong>Extended treatment:</strong> May require 6-12 months total treatment time</li>
+                            <li><strong>Medical supervision:</strong> Consider medical oversight for high-burden cases</li>
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (ageGroup !== 'adult') {
+                specialConsiderationsHTML += `
+                    <div class="warning-box">
+                        <h4><span class="warning-icon">⚠️</span> Pediatric/Adolescent Dosing Notes:</h4>
+                        <p>Special considerations for ${ageGroup === 'child' ? 'pediatric' : 'adolescent'} patients:</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>All doses above have been adjusted for ${ageGroup === 'child' ? 'children (4-12 years)' : 'adolescents (13-17 years)'}</li>
+                            <li><strong>Start slowly:</strong> Begin with 50% of listed homeopathic doses and increase gradually</li>
+                            <li><strong>Enhanced monitoring:</strong> Parents should monitor closely for tolerance and reactions</li>
+                            <li><strong>Taste considerations:</strong> Can mix homeopathic drops in small amount of water or juice</li>
+                            <li><strong>Compliance support:</strong> Establish consistent routine and positive reinforcement</li>
+                            <li><strong>Growth monitoring:</strong> Track height, weight, and development throughout protocol</li>
+                            <li><strong>OmniCleanse Powdered Beverage:</strong> Not recommended for children under 18</li>
+                        </ul>
+                    </div>
+                `;
+            }
+
+            // Generate Protocol at a Glance
+            const protocolGlanceHTML = `
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">📋 Your Protocol at a Glance</h3>
+                <p style="margin-bottom: 15px; color: #495057;">This protocol follows a 4-phase progression based on DesBio's homotoxicology principles:</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <h4 style="color: #0d47a1; margin-bottom: 8px;">Phase 1 (Days 1-60)</h4>
+                        <p style="font-size: 0.9em; margin: 0; color: #1565c0;">START Comprehensive Homeopathic Detox Kit<br>Begin 1 week early<br>Weekly rotation of 6 remedies</p>
+                    </div>
+                    
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
+                        <h4 style="color: #e65100; margin-bottom: 8px;">Phase 2 (Days 7-90)</h4>
+                        <p style="font-size: 0.9em; margin: 0; color: #ef6c00;">CONTINUE Phase 1 rotation<br>ADD mycotoxin remedies & binders<br>Take 12-14 products total</p>
+                    </div>
+                    
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50;">
+                        <h4 style="color: #2e7d32; margin-bottom: 8px;">Phase 3 (Days 90-120)</h4>
+                        <p style="font-size: 0.9em; margin: 0; color: #388e3c;">REDUCE detox frequency<br>ADD gut restoration<br>Take 9-11 products</p>
+                    </div>
+                    
+                    <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; border-left: 4px solid #9c27b0;">
+                        <h4 style="color: #6a1b9a; margin-bottom: 8px;">Phase 4 (Ongoing)</h4>
+                        <p style="font-size: 0.9em; margin: 0; color: #7b1fa2;">STOP detox remedies<br>MAINTAIN essentials only<br>Take 4-6 products</p>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 20px; color: #6c757d; font-style: italic;">
+                    <strong>Important:</strong> The Comprehensive Homeopathic Detox Kit rotation continues throughout Phase 1 and Phase 2. Each phase builds upon the previous one.
+                </p>
+            `;
+
+            // Update HTML
+            document.getElementById('patientDetails').innerHTML = patientDetailsHTML;
+            document.getElementById('selectedMycotoxins').innerHTML = mycotoxinListHTML;
+            document.getElementById('protocolGlance').innerHTML = protocolGlanceHTML;
+            document.getElementById('phase1Products').innerHTML = phase1HTML;
+            document.getElementById('phase2Products').innerHTML = phase2HTML;
+            document.getElementById('phase3Products').innerHTML = phase3HTML;
+            document.getElementById('phase4Products').innerHTML = phase4HTML;
+            document.getElementById('specialConsiderations').innerHTML = specialConsiderationsHTML;
+
+            // Show protocol output
+            document.getElementById('protocolOutput').classList.add('show');
+            
+            // Scroll to protocol
+            document.getElementById('protocolOutput').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize - collapse all categories except Aflatoxins
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleCategory('other');
+            toggleCategory('trichothecenes');
+        });
+    </script>
+</body>
+</html>
