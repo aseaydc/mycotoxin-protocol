@@ -848,7 +848,7 @@
             'GALT Fortifier': 39.36,
             'MetaChlor': 52.00,
             'Bio-A Curcumin PhytoNanosome': 64.72,
-            'CoQ10 Liposome': 55.90,
+            'CoQ10 Liposome Tincture': 55.90,
             'Wild Oregano Oil': 40.69,
             'Berberine Intrinsic': 32.00,
             'Lapacho Intrinsic': 33.60,
@@ -910,8 +910,16 @@
                 // We'll use 5 days for acute phase calculations
                 
                 if (product.type === 'tincture') {
-                    const acuteUnits = 12 * acuteDays; // 2 droppers 6x daily for 5 days
-                    const generalUnits = 2 * (daysInPhase - acuteDays); // 1 dropper 2x daily for remaining days
+                    let acuteDaily, generalDaily;
+                    if (productName === 'CoQ10 Liposome Tincture') {
+                        acuteDaily = 18; // 3 droppers 6x daily
+                        generalDaily = 2; // 1 dropper 2x daily
+                    } else {
+                        acuteDaily = 12; // 2 droppers 6x daily (standard)
+                        generalDaily = 2; // 1 dropper 2x daily
+                    }
+                    const acuteUnits = acuteDaily * acuteDays;
+                    const generalUnits = generalDaily * (daysInPhase - acuteDays);
                     totalUnits = acuteUnits + generalUnits;
                 } else if (product.type === 'spray') {
                     // Methyl-B12: Use SERVINGS not individual sprays
@@ -958,7 +966,14 @@
                 // CHRONIC: Sustained higher dosing throughout
                 
                 if (product.type === 'tincture') {
-                    const dailyUnits = (productName === 'Lymph 3') ? 6 : 4; // Lymph 3 is 3x daily
+                    let dailyUnits;
+                    if (productName === 'Lymph 3') {
+                        dailyUnits = 6; // Lymph 3 is 3x daily
+                    } else if (productName === 'CoQ10 Liposome Tincture') {
+                        dailyUnits = 2; // 1 dropper 2x daily (same as general)
+                    } else {
+                        dailyUnits = 4; // 2 droppers 2x daily (standard chronic)
+                    }
                     totalUnits = dailyUnits * daysInPhase;
                 } else if (product.type === 'spray') {
                     // Methyl-B12: 5 sprays 2x daily = 10 sprays/day = 2 servings/day
@@ -1089,9 +1104,9 @@
                     chronic: '1 capsule 2x daily'
                 },
                 'CoQ10 Liposome Tincture': {
-                    general: '1 full dropper 2x daily in warm water',
-                    acute: '2 full droppers 6x daily in warm water',
-                    chronic: '2 full droppers 2x daily in warm water'
+                    general: '1 full dropper 2x daily sublingually',
+                    acute: '3 full droppers 6x daily sublingually (3-5 days)',
+                    chronic: '1 full dropper 2x daily sublingually'
                 },
                 'Wild Oregano Oil': {
                     general: '1 soft gel daily with meals',
